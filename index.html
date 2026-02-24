@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AR Single Video</title>
+  <title>AR Album - 30 Markers Auto</title>
 
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
@@ -19,7 +19,7 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      object-fit: contain; /* auto adjust ratio */
+      object-fit: contain;
       background: black;
       display: none;
       z-index: 9999;
@@ -30,11 +30,7 @@
 <body>
 
   <!-- Fullscreen Video -->
-  <video
-    id="fullscreenVideo"
-    playsinline
-    webkit-playsinline>
-  </video>
+  <video id="fullscreenVideo" playsinline webkit-playsinline></video>
 
   <a-scene
     mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 1;"
@@ -44,9 +40,7 @@
     device-orientation-permission-ui="enabled: false"
   >
 
-    <!-- Single Target -->
-    <a-entity mindar-image-target="targetIndex: 0" id="mainTarget">
-    </a-entity>
+    <a-assets></a-assets>
 
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
@@ -54,10 +48,12 @@
 
   <script>
     const fullscreenVideo = document.getElementById("fullscreenVideo");
-    const mainTarget = document.querySelector("#mainTarget");
+    const scene = document.querySelector("a-scene");
 
-    function playVideo() {
-      fullscreenVideo.src = "./videos/Hai.mp4";
+    const MAX_TARGETS = 30; // 🔥 30 markers support
+
+    function playVideo(index) {
+      fullscreenVideo.src = `./videos/${index}.mp4`;
       fullscreenVideo.style.display = "block";
       fullscreenVideo.play().catch(() => {});
     }
@@ -68,9 +64,18 @@
       fullscreenVideo.style.display = "none";
     }
 
-    mainTarget.addEventListener("targetFound", playVideo);
-    mainTarget.addEventListener("targetLost", stopVideo);
+    for (let i = 0; i < MAX_TARGETS; i++) {
+      const entity = document.createElement("a-entity");
+      entity.setAttribute("mindar-image-target", `targetIndex: ${i}`);
 
+      entity.addEventListener("targetFound", () => {
+        playVideo(i);
+      });
+
+      entity.addEventListener("targetLost", stopVideo);
+
+      scene.appendChild(entity);
+    }
   </script>
 
 </body>
