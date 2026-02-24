@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AR Album Fullscreen</title>
+  <title>AR Single Video</title>
 
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
@@ -13,14 +13,13 @@
       overflow: hidden;
     }
 
-    /* Fullscreen Video Style */
     #fullscreenVideo {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      object-fit: cover;
+      object-fit: contain; /* auto adjust ratio */
       background: black;
       display: none;
       z-index: 9999;
@@ -30,30 +29,23 @@
 
 <body>
 
-  <!-- FULLSCREEN VIDEO -->
+  <!-- Fullscreen Video -->
   <video
     id="fullscreenVideo"
     playsinline
-    webkit-playsinline
-  ></video>
+    webkit-playsinline>
+  </video>
 
   <a-scene
     mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 1;"
     color-space="sRGB"
-    renderer="colorManagement: true, physicallyCorrectLights"
+    renderer="colorManagement: true"
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false"
   >
 
-    <!-- Assets -->
-    <a-assets></a-assets>
-
-    <!-- TARGET 0 – Apple -->
-    <a-entity mindar-image-target="targetIndex: 0" id="targetApple">
-    </a-entity>
-
-    <!-- TARGET 1 – Girl -->
-    <a-entity mindar-image-target="targetIndex: 1" id="targetGirl">
+    <!-- Single Target -->
+    <a-entity mindar-image-target="targetIndex: 0" id="mainTarget">
     </a-entity>
 
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
@@ -62,35 +54,22 @@
 
   <script>
     const fullscreenVideo = document.getElementById("fullscreenVideo");
+    const mainTarget = document.querySelector("#mainTarget");
 
-    const targetApple = document.querySelector("#targetApple");
-    const targetGirl = document.querySelector("#targetGirl");
-
-    function playFullVideo(src) {
-      fullscreenVideo.src = src;
+    function playVideo() {
+      fullscreenVideo.src = "./videos/Hai.mp4";
       fullscreenVideo.style.display = "block";
-      fullscreenVideo.play();
+      fullscreenVideo.play().catch(() => {});
     }
 
-    function stopFullVideo() {
+    function stopVideo() {
       fullscreenVideo.pause();
       fullscreenVideo.currentTime = 0;
       fullscreenVideo.style.display = "none";
     }
 
-    // Apple Target
-    targetApple.addEventListener("targetFound", () => {
-      playFullVideo("./videos/Apple.mp4");
-    });
-
-    targetApple.addEventListener("targetLost", stopFullVideo);
-
-    // Girl Target
-    targetGirl.addEventListener("targetFound", () => {
-      playFullVideo("./videos/Girl.mp4");
-    });
-
-    targetGirl.addEventListener("targetLost", stopFullVideo);
+    mainTarget.addEventListener("targetFound", playVideo);
+    mainTarget.addEventListener("targetLost", stopVideo);
 
   </script>
 
